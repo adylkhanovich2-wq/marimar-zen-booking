@@ -132,6 +132,9 @@ function Index() {
           <div className="absolute inset-0 animate-pulse bg-muted" aria-hidden />
         )}
         <img
+          ref={(el) => {
+            if (el?.complete && el.naturalWidth > 0) setHeroLoaded(true);
+          }}
           src={heroImage}
           alt="Атмосферный интерьер премиальной частной сауны MariMar"
           width={1600}
