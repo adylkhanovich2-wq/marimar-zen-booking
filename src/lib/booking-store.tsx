@@ -51,7 +51,7 @@ export const CABINS: Cabin[] = [
 ];
 
 export function getCabin(id: CabinId): Cabin {
-  return CABINS.find((c) => c.id === id) ?? CABINS[0];
+  return CABINS.find((c) => c.id === id) ?? (CABINS[0] as Cabin);
 }
 
 export function formatPrice(value: number): string {
@@ -157,19 +157,14 @@ export function formatMinutes(total: number): string {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 
-export function buildSlots(settings: AppSettings): number[] {
+export function buildSlots(settings: AppSettings, minHours = 2): number[] {
   const slots: number[] = [];
-  for (
-    let m = settings.openHour * 60;
-    m <= settings.closeHour * 60 - settings.minHoursSpan();
-    m += settings.slotStepMinutes
-  ) {
+  const last = settings.closeHour * 60 - minHours * 60;
+  for (let m = settings.openHour * 60; m <= last; m += settings.slotStepMinutes) {
     slots.push(m);
   }
   return slots;
 }
-
-declare module "./booking-store" {}
 
 /** Deterministic pseudo-random "already booked" slots. */
 export function isSlotBooked(dateKey: string, cabinId: CabinId, minutes: number): boolean {
