@@ -59,6 +59,9 @@ function CabinCard({ cabinId, index }: { cabinId: CabinId; index: number }) {
           <div className="absolute inset-0 animate-pulse bg-muted" aria-hidden />
         )}
         <img
+          ref={(el) => {
+            if (el?.complete && el.naturalWidth > 0) setLoaded(true);
+          }}
           src={CABIN_IMAGES[cabinId]}
           alt={`Кабинка ${cabin.name} — ${cabin.nameRu}`}
           loading="lazy"
