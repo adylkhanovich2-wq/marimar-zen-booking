@@ -116,6 +116,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [settingsLoading, setSettingsLoading] = useState(true);
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [prefill, setPrefill] = useState<Prefill | null>(null);
 
   useEffect(() => {
     // Simulated settings fetch — service fee is a dynamic parameter.
@@ -131,7 +132,13 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addBooking = useCallback((b: Booking) => {
-    setBookings((prev) => [b, ...prev]);
+    setBookings((prev) => [{ status: "confirmed", ...b }, ...prev]);
+  }, []);
+
+  const cancelBooking = useCallback((id: string) => {
+    setBookings((prev) =>
+      prev.map((b) => (b.id === id ? { ...b, status: "cancelled" as const } : b)),
+    );
   }, []);
 
   const value = useMemo(
@@ -142,9 +149,22 @@ export function BookingProvider({ children }: { children: ReactNode }) {
       settingsLoading,
       bookings,
       addBooking,
+      cancelBooking,
+      prefill,
+      setPrefill,
     }),
-    [selectedCabin, selectCabin, settings, settingsLoading, bookings, addBooking],
+    [
+      selectedCabin,
+      selectCabin,
+      settings,
+      settingsLoading,
+      bookings,
+      addBooking,
+      cancelBooking,
+      prefill,
+    ],
   );
+
 
   return (
     <BookingContext.Provider value={value}>{children}</BookingContext.Provider>
