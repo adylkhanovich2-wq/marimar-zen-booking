@@ -73,6 +73,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   slotStepMinutes: 60,
 };
 
+export type BookingStatus = "confirmed" | "pending" | "completed" | "cancelled";
+
 export interface Booking {
   id: string;
   reference: string;
@@ -86,6 +88,12 @@ export interface Booking {
   note: string;
   total: number;
   createdAt: number;
+  status?: BookingStatus;
+}
+
+export interface Prefill {
+  cabinId: CabinId;
+  hours: number;
 }
 
 interface BookingState {
@@ -95,7 +103,11 @@ interface BookingState {
   settingsLoading: boolean;
   bookings: Booking[];
   addBooking: (b: Booking) => void;
+  cancelBooking: (id: string) => void;
+  prefill: Prefill | null;
+  setPrefill: (p: Prefill | null) => void;
 }
+
 
 const BookingContext = createContext<BookingState | null>(null);
 
