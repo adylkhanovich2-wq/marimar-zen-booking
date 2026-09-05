@@ -229,3 +229,33 @@ export function makeReference(): string {
   for (let i = 0; i < 6; i++) out += chars[Math.floor(Math.random() * chars.length)];
   return `MM-${out}`;
 }
+
+/* ---------- booking status helpers ---------- */
+
+export function bookingStartDate(b: Booking): Date {
+  const d = new Date(`${b.date}T00:00:00`);
+  d.setMinutes(d.getMinutes() + b.startMinutes);
+  return d;
+}
+
+export function bookingEndDate(b: Booking): Date {
+  return new Date(bookingStartDate(b).getTime() + b.hours * 3600000);
+}
+
+export function effectiveStatus(b: Booking, now: Date = new Date()): BookingStatus {
+  if (b.status === "cancelled") return "cancelled";
+  if (bookingEndDate(b).getTime() < now.getTime()) return "completed";
+  return b.status ?? "confirmed";
+}
+
+export const STATUS_LABELS: Record<BookingStatus, string> = {
+  confirmed: "Подтверждено",
+  pending: "В обработке",
+  completed: "Завершено",
+  cancelled: "Отменено",
+};
+
+export function formatDateRu(dateKey: string): string {
+  const d = new Date(`${dateKey}T00:00:00`);
+  return `${RU_WEEKDAYS_SHORT[d.getDay()]}, ${d.getDate()} ${RU_MONTHS_SHORT[d.getMonth()]}`;
+}
