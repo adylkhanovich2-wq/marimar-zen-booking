@@ -125,11 +125,11 @@ function BookingsPage() {
           [0, 1].map((i) => (
             <div key={i} className="surface-card overflow-hidden p-4">
               <div className="flex gap-4">
-                <div className="skeleton h-20 w-20 shrink-0 rounded-xl" />
+                <div className="animate-pulse bg-muted h-20 w-20 shrink-0 rounded-xl" />
                 <div className="flex-1 space-y-2 py-1">
-                  <div className="skeleton h-4 w-24 rounded" />
-                  <div className="skeleton h-3 w-36 rounded" />
-                  <div className="skeleton h-3 w-20 rounded" />
+                  <div className="animate-pulse bg-muted h-4 w-24 rounded" />
+                  <div className="animate-pulse bg-muted h-3 w-36 rounded" />
+                  <div className="animate-pulse bg-muted h-3 w-20 rounded" />
                 </div>
               </div>
             </div>
