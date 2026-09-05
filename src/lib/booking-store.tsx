@@ -73,6 +73,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   slotStepMinutes: 60,
 };
 
+export type BookingStatus = "confirmed" | "pending" | "completed" | "cancelled";
+
 export interface Booking {
   id: string;
   reference: string;
@@ -86,6 +88,12 @@ export interface Booking {
   note: string;
   total: number;
   createdAt: number;
+  status?: BookingStatus;
+}
+
+export interface Prefill {
+  cabinId: CabinId;
+  hours: number;
 }
 
 interface BookingState {
@@ -95,7 +103,11 @@ interface BookingState {
   settingsLoading: boolean;
   bookings: Booking[];
   addBooking: (b: Booking) => void;
+  cancelBooking: (id: string) => void;
+  prefill: Prefill | null;
+  setPrefill: (p: Prefill | null) => void;
 }
+
 
 const BookingContext = createContext<BookingState | null>(null);
 
@@ -104,6 +116,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [settingsLoading, setSettingsLoading] = useState(true);
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [prefill, setPrefill] = useState<Prefill | null>(null);
 
   useEffect(() => {
     // Simulated settings fetch — service fee is a dynamic parameter.
@@ -119,7 +132,13 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addBooking = useCallback((b: Booking) => {
-    setBookings((prev) => [b, ...prev]);
+    setBookings((prev) => [{ status: "confirmed", ...b }, ...prev]);
+  }, []);
+
+  const cancelBooking = useCallback((id: string) => {
+    setBookings((prev) =>
+      prev.map((b) => (b.id === id ? { ...b, status: "cancelled" as const } : b)),
+    );
   }, []);
 
   const value = useMemo(
@@ -130,9 +149,22 @@ export function BookingProvider({ children }: { children: ReactNode }) {
       settingsLoading,
       bookings,
       addBooking,
+      cancelBooking,
+      prefill,
+      setPrefill,
     }),
-    [selectedCabin, selectCabin, settings, settingsLoading, bookings, addBooking],
+    [
+      selectedCabin,
+      selectCabin,
+      settings,
+      settingsLoading,
+      bookings,
+      addBooking,
+      cancelBooking,
+      prefill,
+    ],
   );
+
 
   return (
     <BookingContext.Provider value={value}>{children}</BookingContext.Provider>
@@ -196,4 +228,34 @@ export function makeReference(): string {
   let out = "";
   for (let i = 0; i < 6; i++) out += chars[Math.floor(Math.random() * chars.length)];
   return `MM-${out}`;
+}
+
+/* ---------- booking status helpers ---------- */
+
+export function bookingStartDate(b: Booking): Date {
+  const d = new Date(`${b.date}T00:00:00`);
+  d.setMinutes(d.getMinutes() + b.startMinutes);
+  return d;
+}
+
+export function bookingEndDate(b: Booking): Date {
+  return new Date(bookingStartDate(b).getTime() + b.hours * 3600000);
+}
+
+export function effectiveStatus(b: Booking, now: Date = new Date()): BookingStatus {
+  if (b.status === "cancelled") return "cancelled";
+  if (bookingEndDate(b).getTime() < now.getTime()) return "completed";
+  return b.status ?? "confirmed";
+}
+
+export const STATUS_LABELS: Record<BookingStatus, string> = {
+  confirmed: "Подтверждено",
+  pending: "В обработке",
+  completed: "Завершено",
+  cancelled: "Отменено",
+};
+
+export function formatDateRu(dateKey: string): string {
+  const d = new Date(`${dateKey}T00:00:00`);
+  return `${RU_WEEKDAYS_SHORT[d.getDay()]}, ${d.getDate()} ${RU_MONTHS_SHORT[d.getMonth()]}`;
 }
