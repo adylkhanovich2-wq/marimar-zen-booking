@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, Clock, NotebookText, RotateCcw, Users, X } from "lucide-react";
 import {
   STATUS_LABELS,
-  bookingEndDate,
   effectiveStatus,
   formatDateRu,
   formatMinutes,
