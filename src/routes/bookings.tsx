@@ -69,8 +69,10 @@ function BookingsPage() {
   const grouped = useMemo(() => {
     const now = new Date();
     const res: Record<TabId, Booking[]> = { upcoming: [], past: [], cancelled: [] };
+    console.log("[BookingsPage] bookings count:", bookings.length);
     for (const b of bookings) {
       const st = effectiveStatus(b, now);
+      console.log("[BookingsPage] booking", b.reference, "status", st, "end", bookingEndDate(b).toISOString());
       if (st === "cancelled") res.cancelled.push(b);
       else if (st === "completed") res.past.push(b);
       else res.upcoming.push(b);
