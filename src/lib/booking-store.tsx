@@ -132,7 +132,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addBooking = useCallback((b: Booking) => {
-    setBookings((prev) => [{ status: "confirmed", ...b }, ...prev]);
+    setBookings((prev) => [{ status: "confirmed" as const, ...b }, ...prev]);
   }, []);
 
   const cancelBooking = useCallback((id: string) => {
