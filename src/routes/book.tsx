@@ -82,8 +82,15 @@ function SlotsSkeleton() {
 
 function BookPage() {
   const navigate = useNavigate();
-  const { selectedCabin, selectCabin, settings, settingsLoading, addBooking } =
-    useBooking();
+  const {
+    selectedCabin,
+    selectCabin,
+    settings,
+    settingsLoading,
+    addBooking,
+    prefill,
+    setPrefill,
+  } = useBooking();
 
   const cabinId: CabinId = selectedCabin ?? "lux";
   const cabin = getCabin(cabinId);
@@ -100,7 +107,7 @@ function BookPage() {
 
   const [dateKey, setDateKey] = useState(() => toDateKey(dates[0] as Date));
   const [start, setStart] = useState<number | null>(null);
-  const [hours, setHours] = useState(2);
+  const [hours, setHours] = useState(() => prefill?.hours ?? 2);
   const [guests, setGuests] = useState(2);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -111,8 +118,10 @@ function BookPage() {
   const [slotsLoading, setSlotsLoading] = useState(true);
 
   useEffect(() => {
-    if (!selectedCabin) selectCabin("lux");
-  }, [selectedCabin, selectCabin]);
+    if (!selectedCabin) selectCabin(prefill?.cabinId ?? "lux");
+    // Apply prefill once on mount then clear it so the next visit starts fresh.
+    if (prefill) setPrefill(null);
+  }, [selectedCabin, prefill, selectCabin, setPrefill]);
 
   useEffect(() => {
     setSlotsLoading(true);
@@ -123,6 +132,7 @@ function BookPage() {
 
   useEffect(() => {
     setGuests((g) => Math.min(g, cabin.maxGuests));
+
   }, [cabin.maxGuests]);
 
   const slots = useMemo(() => buildSlots(settings, 2), [settings]);
